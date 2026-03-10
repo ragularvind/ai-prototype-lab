@@ -26,7 +26,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <main className="main-content">
+        <div className="bg-gradient-orbs">
+          <div className="orb orb-1"></div>
+          <div className="orb orb-2"></div>
+        </div>
+        <main className="main-content relative z-10">
           <header className="container header">
             <Link href="/" className="logo text-gradient">AI Prototype Lab</Link>
           </header>

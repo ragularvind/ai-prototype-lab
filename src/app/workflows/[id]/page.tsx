@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 
@@ -41,7 +41,32 @@ export default function WorkflowExecutionPage() {
 
   const [input, setInput] = useState('');
   const [result, setResult] = useState('');
+  const [displayedResult, setDisplayedResult] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    if (!result) {
+      setDisplayedResult('');
+      return;
+    }
+
+    setIsTyping(true);
+    let index = 0;
+    setDisplayedResult('');
+
+    const interval = setInterval(() => {
+      setDisplayedResult((prev) => prev + result.charAt(index));
+      index++;
+
+      if (index >= result.length) {
+        clearInterval(interval);
+        setIsTyping(false);
+      }
+    }, 15); // Adjust typing speed here
+
+    return () => clearInterval(interval);
+  }, [result]);
 
   if (!workflow) {
     return (
@@ -111,13 +136,15 @@ export default function WorkflowExecutionPage() {
         <div className="card animate-fade-in" style={{ borderTop: '4px solid var(--accent-color)' }}>
           <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Result</h3>
           {loading ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text-secondary)' }}>
-              <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: '2px solid var(--text-secondary)', borderTopColor: 'var(--accent-color)', animation: 'spin 1s linear infinite' }} />
-              Running AI simulation...
+            <div className="shimmer-wrapper">
+              <div className="shimmer-line"></div>
+              <div className="shimmer-line"></div>
+              <div className="shimmer-line"></div>
             </div>
           ) : (
             <div style={{ whiteSpace: 'pre-wrap', color: 'var(--text-primary)', background: 'rgba(0,0,0,0.2)', padding: '1.5rem', borderRadius: 'var(--radius-md)' }}>
-              {result}
+              {displayedResult}
+              {isTyping && <span className="typewriter-cursor"></span>}
             </div>
           )}
         </div>
