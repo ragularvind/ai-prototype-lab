@@ -13,40 +13,24 @@ const workflowDetails = {
     description: 'Ask anything and get a simple response.',
     placeholder: 'Hello, how can I learn AI?',
     buttonText: 'Send Message',
-    getMockResponse: async (input: string) => {
-      await delay(1500);
-      return `AI Assistant: That's a great question! Learning AI starts with understanding the basics of prompting and exploring simple prototypes just like this one. Your input was "${input}".`;
-    }
   },
   'summarizer': {
     title: 'Text Summarizer',
     description: 'Paste a long paragraph and I will summarize it for you.',
     placeholder: 'Paste your long text here...',
     buttonText: 'Summarize',
-    getMockResponse: async (input: string) => {
-      await delay(2000);
-      return `Summary: The provided text discusses various points and concludes with key takeaways. \n\n(Original length: ${input.length} characters)`;
-    }
   },
   'idea-generator': {
     title: 'Startup Idea Generator',
     description: 'Enter a keyword or industry to get a unique startup idea.',
     placeholder: 'e.g., Education, Healthcare, Pets',
     buttonText: 'Generate Idea',
-    getMockResponse: async (input: string) => {
-      await delay(1500);
-      return `Idea: An AI-powered platform for "${input}" that connects users with automated tailored plans and expert consultation, lowering the barrier to entry by 50%.`;
-    }
   },
   'agent-demo': {
     title: 'Agent Workflow Demo',
     description: 'Give the agent a complex task and watch it break it down.',
     placeholder: 'Plan a 3-day trip to Tokyo.',
     buttonText: 'Plan Task',
-    getMockResponse: async (input: string) => {
-      await delay(3000);
-      return `Agent Task Breakdown:\n\n1. Researching criteria for: ${input}\n2. Identifying core steps required.\n3. Formulating action plan.\n\nResult:\n- Day 1: Arrival & Exploration\n- Day 2: Core Activities\n- Day 3: Wrap-up & Review`;
-    }
   }
 };
 
@@ -73,10 +57,21 @@ export default function WorkflowExecutionPage() {
     setLoading(true);
     setResult('');
     try {
-      const response = await workflow.getMockResponse(input);
-      setResult(response);
-    } catch {
-      setResult('An error occurred during API simulation.');
+      const response = await fetch('/api/ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ workflowId: id, input })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to generate response.');
+      }
+
+      setResult(data.result);
+    } catch (err: any) {
+      setResult(err.message || 'An error occurred during AI execution.');
     } finally {
       setLoading(false);
     }
