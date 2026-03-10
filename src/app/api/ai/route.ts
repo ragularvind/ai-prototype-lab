@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
 
 export async function POST(req: Request) {
   try {
-    // Initialize inside the block so it doesn't break static generation where env var might not exist
-    const openai = new OpenAI();
+    // Initialize the Gemini client inside the block so it doesn't break static generation where env var might not exist
+    if (!process.env.GEMINI_API_KEY) {
+       console.warn('GEMINI_API_KEY environment variable is not defined.');
+    }
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
     
     const { workflowId, input } = await req.json();
 
@@ -38,22 +41,22 @@ export async function POST(req: Request) {
         );
     }
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // or 'gpt-3.5-turbo' if preferred
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: input }
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: input,
+        config: {
+            systemInstruction: systemPrompt,
+            temperature: 0.7,
+            maxOutputTokens: 500,
+        }
     });
 
-    const output = completion.choices[0]?.message?.content || 'No response generated.';
+    const output = response.text || 'No response generated.';
 
     return NextResponse.json({ result: output });
 
   } catch (error: any) {
-    console.error('OpenAI API error:', error);
+    console.error('Gemini API error:', error);
     return NextResponse.json(
       { error: error.message || 'Something went wrong processing your request.' },
       { status: 500 }
