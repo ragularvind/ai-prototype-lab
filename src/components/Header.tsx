@@ -18,8 +18,8 @@ export default function Header() {
       setUser(JSON.parse(storedUser));
     } else {
       setUser(null);
-      // Auto-redirect to login if trying to access protected areas
-      if (pathname !== '/') {
+      // Auto-redirect to login if trying to access protected areas, but allow onboarding and login pages
+      if (pathname !== '/' && !pathname.startsWith('/onboarding') && !pathname.startsWith('/login')) {
         router.push('/');
       }
     }
