@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from 'next/link';
+import Header from '../components/Header';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,9 +32,7 @@ export default function RootLayout({
           <div className="orb orb-2"></div>
         </div>
         <main className="main-content relative z-10">
-          <header className="container header">
-            <Link href="/" className="logo text-gradient">AI Prototype Lab</Link>
-          </header>
+          <Header />
           {children}
         </main>
       </body>
